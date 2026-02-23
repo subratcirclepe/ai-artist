@@ -1,0 +1,108 @@
+/* AI Artist Agent — Dark Music Studio Theme */
+
+/* Main background */
+.stApp {
+    background-color: #0e1117;
+    color: #fafafa;
+}
+
+/* Sidebar styling */
+[data-testid="stSidebar"] {
+    background-color: #161b22;
+    border-right: 1px solid #30363d;
+}
+
+[data-testid="stSidebar"] .stSelectbox label,
+[data-testid="stSidebar"] .stSlider label {
+    color: #c9d1d9;
+    font-weight: 500;
+}
+
+/* Chat messages */
+[data-testid="stChatMessage"] {
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* User message */
+[data-testid="stChatMessage"][data-testid*="user"] {
+    background-color: #1c2333;
+}
+
+/* Assistant message */
+[data-testid="stChatMessage"][data-testid*="assistant"] {
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+}
+
+/* Chat input */
+[data-testid="stChatInput"] textarea {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    border-radius: 12px;
+}
+
+/* Expander for references */
+.streamlit-expanderHeader {
+    background-color: #161b22;
+    border-radius: 8px;
+    color: #8b949e;
+    font-size: 0.9rem;
+}
+
+.streamlit-expanderContent {
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Buttons */
+.stButton > button {
+    background-color: #238636;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.stButton > button:hover {
+    background-color: #2ea043;
+}
+
+/* Headers */
+h1, h2, h3 {
+    color: #f0f6fc;
+}
+
+/* Spinner text */
+.stSpinner > div {
+    color: #8b949e;
+}
+
+/* Select box */
+.stSelectbox > div > div {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+}
+
+/* Slider */
+.stSlider > div > div > div {
+    background-color: #238636;
+}
+
+/* Divider */
+hr {
+    border-color: #30363d;
+}
+
+/* Info boxes */
+.stAlert {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+}

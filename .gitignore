@@ -1,0 +1,46 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+eggs/
+*.whl
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
+
+# Data & logs
+*.log
+data/*.db
+data/*.sqlite
+
+# ChromaDB
+chroma_data/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Misc
+=2.0.0

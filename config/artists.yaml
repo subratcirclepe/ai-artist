@@ -1,0 +1,77 @@
+artists:
+  anuv_jain:
+    name: "Anuv Jain"
+    genius_name: "Anuv Jain"
+    language: "Hindi-English mix (Hinglish), predominantly Hindi lyrics with English phrases blended in naturally"
+    themes:
+      - "nostalgia and childhood memories"
+      - "lost love and longing"
+      - "rain, monsoon, and seasons"
+      - "small town life and simplicity"
+      - "bittersweet emotions"
+      - "old friendships fading away"
+      - "chai, old streets, handwritten letters"
+    musical_style: "soft acoustic, lo-fi indie folk, gentle guitar fingerpicking, warm and intimate production, minimal instrumentation"
+    vocal_style: "soft, breathy, conversational, whisper-like, emotionally vulnerable"
+    song_structure: "verse-chorus-verse-bridge-chorus, sometimes no clear chorus, more like poetic movements"
+    vocabulary_level: "simple everyday Hindi words, very accessible, not overly literary"
+    signature_elements:
+      - "uses rain/barish as a recurring metaphor"
+      - "references chai and purani yaadein (old memories)"
+      - "mixes Hindi lines with occasional English phrases seamlessly"
+      - "short, punchy lines rather than long flowing verses"
+      - "emotional weight through simplicity, not complexity"
+    example_line_patterns:
+      - "Short Hindi line, pause, English continuation"
+      - "Repetition of key emotional phrase"
+      - "Nature imagery (rain, wind, seasons) tied to human emotion"
+
+  arijit_singh:
+    name: "Arijit Singh"
+    genius_name: "Arijit Singh"
+    language: "Primarily Hindi/Urdu with Bollywood lyrical tradition"
+    themes:
+      - "intense romantic love"
+      - "heartbreak and separation"
+      - "devotion and surrender"
+      - "pain of unrequited love"
+      - "spiritual/sufi undertones"
+      - "longing across distance and time"
+    musical_style: "orchestral Bollywood, piano-driven ballads, string arrangements, power ballads, sufi rock fusion"
+    vocal_style: "powerful yet emotional, wide vocal range, melismatic, can shift from whisper to powerful belting"
+    song_structure: "traditional Bollywood: mukhda (hook) - antara (verse) - mukhda repeat - antara 2 - mukhda"
+    vocabulary_level: "poetic Urdu/Hindi, Bollywood lyrical tradition, metaphor-heavy"
+    signature_elements:
+      - "Urdu shayari influence with words like ishq, junoon, dard"
+      - "long sustained emotional phrases"
+      - "builds from quiet to powerful crescendo"
+      - "metaphors of light/darkness, ocean/shore"
+    example_line_patterns:
+      - "Opening with a soft emotional Urdu couplet"
+      - "Building intensity through repeated hooks"
+      - "Contrast between verse vulnerability and chorus power"
+
+  prateek_kuhad:
+    name: "Prateek Kuhad"
+    genius_name: "Prateek Kuhad"
+    language: "English and Hindi (separate songs, rarely mixed within a song)"
+    themes:
+      - "gentle romantic love"
+      - "vulnerability and emotional honesty"
+      - "everyday moments of connection"
+      - "distance in relationships"
+      - "self-reflection and introspection"
+      - "warmth of companionship"
+    musical_style: "indie folk, acoustic guitar-driven, warm fingerpicking, minimalist production, bedroom pop"
+    vocal_style: "gentle, sincere, slightly raspy, intimate like singing to one person"
+    song_structure: "verse-chorus-verse-chorus-bridge-chorus, classic folk/pop structure"
+    vocabulary_level: "conversational English, simple Hindi, poetic but accessible"
+    signature_elements:
+      - "conversational tone, like talking to a lover"
+      - "warm domestic imagery (cold coffee, winter mornings)"
+      - "understated emotion — never overdramatic"
+      - "clean, uncluttered lyrics with space between lines"
+    example_line_patterns:
+      - "Simple declarative statement about feelings"
+      - "Everyday observation that carries emotional weight"
+      - "Repetition of a tender phrase as an anchor"
