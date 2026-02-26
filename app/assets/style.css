@@ -1,108 +1,265 @@
-/* AI Artist Agent — Dark Music Studio Theme */
+/* AI Artist 2.0 — Adaptive Theme */
 
-/* Main background */
-.stApp {
-    background-color: #0e1117;
-    color: #fafafa;
+/* ===== Light Mode (default) ===== */
+:root {
+    --bg-primary:        #ffffff;
+    --bg-secondary:      #f8f9fa;
+    --bg-tertiary:       #f0f1f3;
+    --bg-chat-user:      #f0f1f3;
+    --bg-chat-assistant: #ffffff;
+    --bg-sidebar:        #f8f9fa;
+    --bg-input:          #ffffff;
+    --bg-card:           #ffffff;
+    --bg-hover:          #f0f1f3;
+
+    --text-primary:      #1a1a1a;
+    --text-secondary:    #6b7280;
+    --text-tertiary:     #9ca3af;
+    --text-inverse:      #ffffff;
+
+    --border-primary:    #e5e7eb;
+    --border-secondary:  #f0f1f3;
+
+    --accent:            #6366f1;
+    --accent-hover:      #4f46e5;
+    --accent-success:    #10b981;
+    --accent-warning:    #f59e0b;
+    --accent-error:      #ef4444;
+
+    --shadow-sm:         0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md:         0 4px 6px rgba(0,0,0,0.07);
+    --radius:            8px;
+    --radius-lg:         12px;
 }
 
-/* Sidebar styling */
+/* ===== Dark Mode ===== */
+.dark-theme {
+    --bg-primary:        #0f0f0f;
+    --bg-secondary:      #171717;
+    --bg-tertiary:       #1e1e1e;
+    --bg-chat-user:      #1e1e1e;
+    --bg-chat-assistant: #141414;
+    --bg-sidebar:        #141414;
+    --bg-input:          #1e1e1e;
+    --bg-card:           #171717;
+    --bg-hover:          #252525;
+
+    --text-primary:      #ececec;
+    --text-secondary:    #a1a1a1;
+    --text-tertiary:     #6b6b6b;
+    --text-inverse:      #0f0f0f;
+
+    --border-primary:    #2e2e2e;
+    --border-secondary:  #222222;
+
+    --accent:            #818cf8;
+    --accent-hover:      #6366f1;
+    --accent-success:    #34d399;
+    --accent-warning:    #fbbf24;
+    --accent-error:      #f87171;
+
+    --shadow-sm:         0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md:         0 4px 6px rgba(0,0,0,0.4);
+}
+
+/* ===== Base ===== */
+.stApp {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+h1, h2, h3, h4 {
+    color: var(--text-primary) !important;
+}
+
+/* ===== Sidebar ===== */
 [data-testid="stSidebar"] {
-    background-color: #161b22;
-    border-right: 1px solid #30363d;
+    background-color: var(--bg-sidebar) !important;
+    border-right: 1px solid var(--border-primary);
 }
 
 [data-testid="stSidebar"] .stSelectbox label,
 [data-testid="stSidebar"] .stSlider label {
-    color: #c9d1d9;
+    color: var(--text-secondary);
     font-weight: 500;
 }
 
-/* Chat messages */
+/* ===== Chat Messages ===== */
 [data-testid="stChatMessage"] {
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     padding: 1rem;
     margin-bottom: 0.5rem;
 }
 
-/* User message */
 [data-testid="stChatMessage"][data-testid*="user"] {
-    background-color: #1c2333;
+    background-color: var(--bg-chat-user);
 }
 
-/* Assistant message */
 [data-testid="stChatMessage"][data-testid*="assistant"] {
-    background-color: #0d1117;
-    border: 1px solid #30363d;
+    background-color: var(--bg-chat-assistant);
+    border: 1px solid var(--border-primary);
 }
 
-/* Chat input */
+/* ===== Chat Input ===== */
 [data-testid="stChatInput"] textarea {
-    background-color: #161b22;
-    border: 1px solid #30363d;
-    color: #c9d1d9;
-    border-radius: 12px;
+    background-color: var(--bg-input) !important;
+    border: 1px solid var(--border-primary) !important;
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-lg);
 }
 
-/* Expander for references */
+/* ===== Buttons ===== */
+.stButton > button {
+    background-color: var(--accent);
+    color: var(--text-inverse);
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+}
+
+.stButton > button:hover {
+    background-color: var(--accent-hover);
+    color: var(--text-inverse);
+}
+
+/* ===== Expanders ===== */
 .streamlit-expanderHeader {
-    background-color: #161b22;
-    border-radius: 8px;
-    color: #8b949e;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius);
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
 .streamlit-expanderContent {
-    background-color: #0d1117;
-    border: 1px solid #30363d;
-    border-radius: 0 0 8px 8px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 0 0 var(--radius) var(--radius);
 }
 
-/* Buttons */
-.stButton > button {
-    background-color: #238636;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    font-weight: 600;
-    transition: background-color 0.2s;
-}
-
-.stButton > button:hover {
-    background-color: #2ea043;
-}
-
-/* Headers */
-h1, h2, h3 {
-    color: #f0f6fc;
-}
-
-/* Spinner text */
-.stSpinner > div {
-    color: #8b949e;
-}
-
-/* Select box */
+/* ===== Form Controls ===== */
 .stSelectbox > div > div {
-    background-color: #161b22;
-    border: 1px solid #30363d;
-    color: #c9d1d9;
+    background-color: var(--bg-secondary) !important;
+    border: 1px solid var(--border-primary) !important;
+    color: var(--text-primary) !important;
 }
 
-/* Slider */
 .stSlider > div > div > div {
-    background-color: #238636;
+    background-color: var(--accent);
 }
 
-/* Divider */
+.stNumberInput input {
+    background-color: var(--bg-secondary) !important;
+    border: 1px solid var(--border-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* ===== Spinner ===== */
+.stSpinner > div {
+    color: var(--text-secondary);
+}
+
+/* ===== Divider ===== */
 hr {
-    border-color: #30363d;
+    border-color: var(--border-primary) !important;
 }
 
-/* Info boxes */
+/* ===== Alerts ===== */
 .stAlert {
-    background-color: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 8px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius);
+}
+
+/* ===== Tabs ===== */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.stTabs [data-baseweb="tab"] {
+    color: var(--text-secondary);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 0.5rem 1rem;
+}
+
+.stTabs [aria-selected="true"] {
+    color: var(--accent) !important;
+    border-bottom: 2px solid var(--accent);
+}
+
+/* ===== Metric ===== */
+[data-testid="stMetric"] {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius);
+    padding: 0.75rem;
+}
+
+[data-testid="stMetricValue"] {
+    color: var(--text-primary) !important;
+}
+
+[data-testid="stMetricLabel"] {
+    color: var(--text-secondary) !important;
+}
+
+/* ===== Utility: Plan Section ===== */
+.plan-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ===== Utility: Version Entry ===== */
+.version-entry {
+    background: var(--bg-card);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.25rem 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.version-entry-past {
+    border-left-color: var(--text-tertiary);
+}
+
+/* ===== Utility: Badge ===== */
+.version-badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.badge-current {
+    background: var(--accent);
+    color: var(--text-inverse);
+}
+
+.badge-previous {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+/* ===== Code blocks ===== */
+code {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border-radius: 4px;
+    padding: 0.1rem 0.3rem;
+}
+
+pre {
+    background-color: var(--bg-secondary) !important;
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius);
 }

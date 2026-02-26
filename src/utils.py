@@ -15,6 +15,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 VECTORSTORE_DIR = DATA_DIR / "vectorstore"
+GRAPHSTORE_DIR = DATA_DIR / "graphstore"
 
 
 def get_api_key(key_name: str) -> str:
@@ -67,7 +68,7 @@ def slugify(name: str) -> str:
 
 def ensure_dirs():
     """Ensure all data directories exist."""
-    for d in [RAW_DIR, PROCESSED_DIR, VECTORSTORE_DIR]:
+    for d in [RAW_DIR, PROCESSED_DIR, VECTORSTORE_DIR, GRAPHSTORE_DIR]:
         d.mkdir(parents=True, exist_ok=True)
 
 
@@ -87,3 +88,15 @@ def processed_data_exists(artist_slug: str) -> bool:
     """Check if processed data exists for an artist."""
     processed_path = PROCESSED_DIR / f"{artist_slug}_processed.json"
     return processed_path.exists()
+
+
+def graph_data_exists(artist_slug: str) -> bool:
+    """Check if graph analysis data exists for an artist."""
+    graph_path = PROCESSED_DIR / f"{artist_slug}_graph_data.json"
+    return graph_path.exists()
+
+
+def graph_store_exists(artist_slug: str) -> bool:
+    """Check if a KuzuDB graph store exists for an artist."""
+    gs_path = GRAPHSTORE_DIR / artist_slug
+    return gs_path.exists() and any(gs_path.iterdir())

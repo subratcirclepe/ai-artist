@@ -13,7 +13,6 @@ def render_chat_history():
         with st.chat_message(role):
             st.markdown(content)
 
-            # Show references for assistant messages
             if role == "assistant" and references:
                 render_references(references)
 
@@ -32,21 +31,41 @@ def render_references(references: list[dict]):
             seen_titles.add(title)
             unique_refs.append(ref)
 
-    with st.expander(f"📚 Reference songs used ({len(unique_refs)})"):
+    with st.expander(f"References ({len(unique_refs)})"):
         for ref in unique_refs:
             meta = ref.get("metadata", {})
             title = meta.get("song_title", "Unknown")
             album = meta.get("album", "")
-            mood = meta.get("estimated_mood", "")
+            mood = meta.get("estimated_mood", "") or meta.get("mood", "")
+            section_type = meta.get("section_type", "")
             text_preview = ref.get("text", "")[:200]
 
-            st.markdown(f"**{title}**")
+            label = f"**{title}**"
+            if section_type:
+                label += f" — _{section_type}_"
+            st.markdown(label)
             if album:
                 st.caption(f"Album: {album}")
             if mood:
                 st.caption(f"Mood: {mood}")
             st.text(text_preview + "...")
             st.divider()
+
+
+def render_validation(validation: dict):
+    """Render validation scores for a graph-powered generation."""
+    if not validation:
+        return
+
+    score = validation.get("overall_score", 0)
+    attempts = validation.get("attempts", 1)
+
+    with st.expander(f"Quality Score: {score:.0%}", expanded=False):
+        cols = st.columns(4)
+        cols[0].metric("Vocabulary", f"{validation.get('vocabulary_score', 0):.0%}")
+        cols[1].metric("Originality", f"{validation.get('originality_score', 0):.0%}")
+        cols[2].metric("Rhyme", f"{validation.get('rhyme_score', 0):.0%}")
+        cols[3].metric("Attempts", str(attempts))
 
 
 def add_message(role: str, content: str, references: list | None = None):

@@ -1,7 +1,8 @@
 """Sidebar component for artist selection and settings."""
 
 import streamlit as st
-from src.utils import load_all_artists, vectorstore_exists, slugify
+from src.utils import load_all_artists, vectorstore_exists, graph_store_exists, slugify
+from app.components.theme import render_theme_toggle
 
 
 def render_sidebar() -> dict:
@@ -12,8 +13,10 @@ def render_sidebar() -> dict:
         Dict with current settings: artist_slug, k, temperature.
     """
     with st.sidebar:
-        st.title("AI Artist Agent")
-        st.caption("Write songs in any artist's style")
+        st.title("AI Artist 2.0")
+        st.caption("AI-powered songwriting engine")
+
+        render_theme_toggle()
 
         st.divider()
 
@@ -38,11 +41,15 @@ def render_sidebar() -> dict:
             st.caption(f"**Style:** {config.get('musical_style', 'N/A')}")
             st.caption(f"**Language:** {config.get('language', 'N/A')}")
 
-            # Vectorstore status
+            # Data status
             if vectorstore_exists(selected_slug):
-                st.success("Data ready", icon="✅")
+                if graph_store_exists(selected_slug):
+                    st.success("Graph RAG ready", icon="🔗")
+                else:
+                    st.success("Vector RAG ready", icon="✅")
+                    st.caption("Build Knowledge Graph for deeper style modeling")
             else:
-                st.warning("No data yet — click Setup below", icon="⚠️")
+                st.warning("No data yet", icon="⚠️")
 
         st.divider()
 
@@ -50,7 +57,7 @@ def render_sidebar() -> dict:
         st.subheader("Settings")
 
         temperature = st.slider(
-            "Creativity (temperature)",
+            "Creativity",
             min_value=0.1,
             max_value=1.0,
             value=0.85,
@@ -59,12 +66,12 @@ def render_sidebar() -> dict:
         )
 
         k_references = st.slider(
-            "Reference songs to use",
+            "Reference songs",
             min_value=1,
             max_value=10,
             value=5,
             step=1,
-            help="How many reference lyrics chunks to retrieve for context",
+            help="How many reference lyrics to retrieve for context",
         )
 
         st.divider()
@@ -77,14 +84,15 @@ def render_sidebar() -> dict:
 
         st.divider()
 
-        # Project Plan link
-        st.page_link("pages/Project_Plan.py", label="View Project Plan", icon="📋")
+        # Page links
+        st.page_link("pages/Project_Plan.py", label="Project Plan", icon="📋")
+        st.page_link("pages/Version_History.py", label="Version History", icon="📜")
 
         st.divider()
 
         # Credits
         st.caption(
-            "Built with LangChain, ChromaDB, and Claude. "
+            "Built with LangChain, KuzuDB, ChromaDB, and Claude. "
             "Lyrics sourced from Genius."
         )
 

@@ -1,74 +1,179 @@
-# AI Artist Agent — Medium Level Build
-## Complete Project Specification for Claude Code
+# AI Artist Agent — Knowledge Graph-Powered Creative Engine
+## Complete Project Specification
 
 ---
 
 ## PROJECT OVERVIEW
 
-Build a RAG-powered AI Agent that mimics the songwriting style of any Indian singer-songwriter (default: Anuv Jain). The agent uses Retrieval-Augmented Generation to fetch real lyrics as context, then generates new original songs in the artist's exact style.
+A Knowledge Graph-powered AI Agent that deeply understands and replicates the songwriting style of any Indian singer-songwriter. Unlike traditional flat RAG approaches, this system builds a comprehensive Music Knowledge Graph per artist — capturing structural patterns, rhyme schemes, emotional arcs, metaphor habits, vocabulary fingerprints, and cultural references — then uses multi-stage graph retrieval to generate lyrics that are authentically artist-specific.
 
-**Final deliverable:** A working Streamlit web app with chat interface where users can:
-1. Select an artist from a dropdown
-2. Ask the agent to write songs on any topic in that artist's style
-3. Chat with the agent as if it were the artist discussing music, creativity, inspiration
-4. View retrieved reference songs used for generation
-5. Rate generated outputs (thumbs up/down for iteration)
+**Architecture inspiration**: KuzuDB graph patterns ported from the GitNexus codebase intelligence engine, adapted for music/lyrics domain.
+
+**Constraints**: 3-5 users. Scalability irrelevant. Depth and accuracy are the only priorities.
+
+**Final deliverable:** A Streamlit web app where users can:
+1. Select an artist and set up their Knowledge Graph (one-time)
+2. Ask the agent to write songs on any topic — output passes 5-check validation
+3. Chat with the artist persona backed by graph-computed identity
+4. View quality scores (vocabulary, originality, rhyme compliance)
+5. See reference songs with section-level attribution
 
 ---
 
-## TECH STACK (EXACT VERSIONS)
+## TECH STACK
 
-| Component | Technology | Version |
+| Component | Technology | Purpose |
 |-----------|-----------|---------|
-| Language | Python | 3.11+ |
-| LLM Framework | LangChain | latest |
-| Vector Database | ChromaDB | latest |
-| Embeddings | HuggingFace sentence-transformers | all-MiniLM-L6-v2 |
-| LLM | Anthropic Claude API | claude-sonnet-4-20250514 |
-| Lyrics Source | lyricsgenius (Genius API) | latest |
-| Web UI | Streamlit | latest |
-| Data Processing | pandas | latest |
-| Environment | python-dotenv | latest |
-| Audio Analysis (optional) | librosa | latest |
+| Language | Python 3.11+ | Core runtime |
+| LLM Framework | LangChain | LLM orchestration, multi-provider fallback |
+| Graph Database | **KuzuDB** | Music Knowledge Graph (embeddable, Cypher, HNSW) |
+| Vector Database | ChromaDB | Legacy flat RAG fallback |
+| Embeddings | sentence-transformers/all-MiniLM-L6-v2 | 384D multilingual embeddings |
+| LLM (primary) | Anthropic Claude | Song generation + LLM-powered analysis |
+| LLM (fallbacks) | Google Gemini, Groq, Cohere | Multi-provider retry chain |
+| Community Detection | leidenalg + igraph | Thematic song clustering |
+| Lyrics Source | lyricsgenius (Genius API) | Raw lyrics scraping |
+| Web UI | Streamlit | Chat interface + setup flow |
+
+---
+
+## SYSTEM ARCHITECTURE
+
+```
+                         ┌─────────────────────────────────────────┐
+                         │              User (Streamlit)            │
+                         └──────────────────┬──────────────────────┘
+                                            │
+                                            v
+                         ┌──────────────────────────────────────────┐
+                         │        Agent (Intent Detection)          │
+                         │     src/agent.py — routes to graph or    │
+                         │     flat RAG based on data availability  │
+                         └──────────────────┬───────────────────────┘
+                                            │
+                              ┌─────────────v──────────────┐
+                              │   Stage 0: Request Analysis │
+                              │   (topic, mood, structure)  │
+                              └─────────────┬──────────────┘
+                                            │
+          ┌─────────┬──────────┬────────────┼────────────┬──────────┬──────────┐
+          v         v          v            v            v          v          v
+      Stage 1   Stage 2    Stage 3     Stage 4      Stage 5    Stage 6    Stage 7
+      Semantic  Vocabulary  Rhyme      Emotional    Metaphor   Cultural   Structure
+      Search    Patterns    Schemes    Arcs         Bank       Refs       Templates
+      (hybrid)  (graph)     (graph)    (graph)      (graph)    (graph)    (graph)
+          │         │          │            │            │          │          │
+          └─────────┴──────────┴────────────┼────────────┴──────────┴──────────┘
+                                            │
+                              ┌─────────────v──────────────┐
+                              │  Context Assembly & Budget  │
+                              │  (~15K tokens, prioritized) │
+                              └─────────────┬──────────────┘
+                                            │
+                              ┌─────────────v──────────────┐
+                              │  Two-Part Prompt Build      │
+                              │  System: identity+constraints│
+                              │  User: examples+task        │
+                              └─────────────┬──────────────┘
+                                            │
+                              ┌─────────────v──────────────┐
+                              │  LLM Generation             │
+                              │  (multi-provider fallback)   │
+                              └─────────────┬──────────────┘
+                                            │
+                              ┌─────────────v──────────────┐
+                              │  Validation Layer            │
+                              │  vocab + rhyme + originality │
+                              │  + emotional arc + structure │
+                              └─────────────┬──────────────┘
+                                            │
+                                   ┌────────┴────────┐
+                                   │  Pass?          │
+                                   ├─Yes─→ Return    │
+                                   └─No──→ Re-gen    │
+                                     (max 3 attempts)
+```
+
+---
+
+## DATA PIPELINE (one-time per artist)
+
+```
+Genius API → Scraper (preserves section headers [Verse], [Chorus], etc.)
+    → Structural Decomposer (Song → Section → Line hierarchy)
+    → Linguistic Analyzer (phrases, cultural references, meter patterns)
+    → Phonetic Analyzer (rhyme pairs: perfect, slant, assonance, cross-language)
+    → LLM-Powered Analysis (metaphors, themes, emotional arcs)
+    → Style Fingerprint Builder (per-artist statistical DNA)
+    → Leiden Clustering (thematic song communities)
+    → KuzuDB Graph Ingestion (all nodes + relationships)
+    → Advanced Data Ingestion (themes, metaphors, arcs, clusters, rhyme pairs)
+    → Embedding Generator (Song + Section + Line embeddings with HNSW index)
+```
 
 ---
 
 ## PROJECT STRUCTURE
 
 ```
-ai-artist-agent/
-│
-├── README.md                    # Setup instructions and usage guide
-├── requirements.txt             # All Python dependencies
-├── .env.example                 # Template for API keys
-├── setup.sh                     # One-command setup script
+ai-artist/
+├── KNOWLEDGE_GRAPH_INTEGRATION_PLAN.md   # Detailed integration design document
+├── AI_Artist_Agent_PROJECT_PLAN.md       # This file — project specification
+├── requirements.txt
+├── .env / .env.example
 │
 ├── config/
-│   ├── artists.yaml             # Artist profiles and style definitions
-│   └── prompts.yaml             # System prompts and prompt templates
+│   ├── artists.yaml              # Artist profiles (3 pre-configured)
+│   └── prompts.yaml              # Legacy static prompts (replaced by graph-computed prompts)
 │
 ├── data/
-│   ├── raw/                     # Raw scraped lyrics (JSON per artist)
-│   ├── processed/               # Cleaned and structured lyrics
-│   └── vectorstore/             # ChromaDB persistent storage
+│   ├── raw/                      # Raw scraped lyrics (JSON per artist)
+│   ├── processed/                # Graph data, advanced analysis, clusters (JSON)
+│   ├── vectorstore/              # ChromaDB persistent storage (fallback)
+│   └── graphstore/               # KuzuDB databases (per artist)
 │
 ├── src/
-│   ├── __init__.py
-│   ├── scraper.py               # Genius API lyrics scraper
-│   ├── preprocessor.py          # Data cleaning and structuring
-│   ├── embeddings.py            # Vector DB creation and management
-│   ├── rag_chain.py             # Core RAG pipeline
-│   ├── agent.py                 # Artist persona agent with memory
-│   └── utils.py                 # Helper functions
+│   ├── scraper.py                # Genius API scraper (preserves section headers)
+│   ├── preprocessor.py           # Legacy flat chunking (ChromaDB path)
+│   ├── embeddings.py             # ChromaDB vector creation
+│   ├── rag_chain.py              # Original flat RAG pipeline (fallback)
+│   ├── graph_rag_chain.py        # Graph-powered RAG pipeline + setup orchestrator
+│   ├── agent.py                  # Artist agent — routes graph vs flat RAG
+│   ├── utils.py                  # Helpers, paths, config loaders
+│   │
+│   ├── graph/                    # KuzuDB graph layer
+│   │   ├── schema.py             # 18 node tables, 22 relationship tables, indexes
+│   │   ├── connection.py         # Singleton DB connection, query execution
+│   │   ├── ingestion.py          # Structural data → graph nodes + relationships
+│   │   ├── loader.py             # Embedding generation + advanced data ingestion
+│   │   └── queries.py            # Centralized Cypher query templates
+│   │
+│   ├── analysis/                 # Analysis layer
+│   │   ├── lyric_analyzer.py     # Structural decomposition + phrase/cultural extraction
+│   │   ├── phonetics.py          # Hindi/English phonetic rhyme detection
+│   │   ├── fingerprint.py        # LLM analysis + StyleFingerprint computation
+│   │   └── thematic_clustering.py # Leiden community detection
+│   │
+│   ├── retrieval/                # Multi-stage retrieval
+│   │   ├── pipeline.py           # 7-stage retrieval orchestrator
+│   │   └── hybrid_search.py      # BM25 + semantic with RRF fusion
+│   │
+│   ├── prompt/                   # Dynamic prompt construction
+│   │   └── assembler.py          # Two-part prompt builder from graph data
+│   │
+│   └── validation/               # Post-generation quality assurance
+│       ├── validator.py          # 5 validation checks + scoring
+│       └── regenerator.py        # Re-generation strategy (partial/full)
 │
 ├── app/
-│   ├── streamlit_app.py         # Main Streamlit application
+│   ├── streamlit_app.py          # Main Streamlit application
+│   ├── pages/
+│   │   └── Project_Plan.py       # This plan displayed in the UI
 │   ├── components/
-│   │   ├── sidebar.py           # Artist selector and settings
-│   │   ├── chat.py              # Chat interface component
-│   │   └── reference_panel.py   # Shows retrieved lyrics context
+│   │   ├── sidebar.py            # Artist selector + graph/vector status
+│   │   └── chat.py               # Chat UI + validation display + references
 │   └── assets/
-│       └── style.css            # Custom Streamlit styling
+│       └── style.css             # Custom styling
 │
 └── tests/
     ├── test_scraper.py
@@ -78,488 +183,222 @@ ai-artist-agent/
 
 ---
 
-## STEP-BY-STEP BUILD INSTRUCTIONS
+## KNOWLEDGE GRAPH SCHEMA
 
-### STEP 1: Project Setup
+### Node Types (18 types across 5 categories)
 
-Create the project structure, requirements.txt, .env.example, and setup.sh.
+**Structural** (containment hierarchy):
+| Node | Key Properties | Purpose |
+|------|---------------|---------|
+| `Artist` | id, name, slug, language, musicalStyle | Root entity |
+| `Album` | id, name, artistId | Album grouping |
+| `Song` | id, title, artistId, language, mood, fullLyrics, lineCount, sectionCount, wordCount | Song-level entity |
+| `Section` | id, songId, sectionType (verse/chorus/bridge/mukhda/antara), text, lineCount, mood | Structural unit |
+| `Line` | id, sectionId, songId, text, romanized, wordCount, syllableCount, language, hasCodeSwitch | Atomic lyric unit |
 
-**requirements.txt:**
+**Linguistic** (atoms of expression):
+| Node | Key Properties | Purpose |
+|------|---------------|---------|
+| `Phrase` | id, text, frequency, artistId, isSignature | Recurring multi-word expressions |
+| `Metaphor` | id, sourceText, sourceDomain, targetDomain, frequency | Imagery patterns (LLM-extracted) |
+| `CulturalReference` | id, referenceText, category, culturalContext, frequency | Cultural touchstones |
+| `RhymePair` | id, wordA, wordB, rhymeType (perfect/slant/assonance/cross_language), frequency | Rhyme vocabulary |
+
+**Stylistic** (patterns that define an artist):
+| Node | Key Properties | Purpose |
+|------|---------------|---------|
+| `Theme` | id, name, description, artistId, songCount, keywords[] | Thematic categories |
+| `Mood` | id, name, valence (-1 to 1), arousal (0 to 1) | Emotion coordinates |
+| `MeterPattern` | id, pattern, artistId, frequency | Line length/rhythm patterns |
+| `StructureTemplate` | id, pattern, artistId, frequency | Song architecture patterns |
+
+**Analytical/Computed**:
+| Node | Key Properties | Purpose |
+|------|---------------|---------|
+| `ThematicCluster` | id, label, keywords[], description, cohesion, songCount | Leiden-detected song communities |
+| `EmotionalArc` | id, songId, arcType, moodSequence[], intensitySequence[] | Per-song mood progression |
+| `StyleFingerprint` | id, artistId, avgLineLength, vocabularyRichness, codeSwitchFrequency, topRhymeTypes[], metaphorDensity, repetitionIndex | Statistical artist DNA |
+| `VocabularyCluster` | id, label, words[], artistId | Semantic word groups |
+
+**Embedding**:
+| Node | Key Properties | Purpose |
+|------|---------------|---------|
+| `LyricEmbedding` | nodeId, embedding FLOAT[384] | Vector storage with HNSW index |
+
+### Relationship Types (22 tables)
+
+| Type | From → To | Purpose |
+|------|-----------|---------|
+| `WRITTEN_BY` | Song → Artist | Authorship |
+| `BELONGS_TO` | Song → Album | Album membership |
+| `CONTAINS_SECTION` | Song → Section | Song structure |
+| `CONTAINS_LINE` | Section → Line | Section content |
+| `SECTION_FOLLOWS` | Section → Section | Sequential ordering |
+| `LINE_FOLLOWS` | Line → Line | Line ordering |
+| `USES_PHRASE` | Line → Phrase | Phrase usage |
+| `CONTAINS_METAPHOR` | Line → Metaphor | Metaphor occurrence |
+| `SONG_REFERENCES_CULTURE` | Song → CulturalReference | Cultural reference tracking |
+| `LINE_REFERENCES_CULTURE` | Line → CulturalReference | Line-level cultural refs |
+| `HAS_THEME` | Song → Theme | Thematic tagging |
+| `SONG_EXPRESSES_MOOD` | Song → Mood | Song-level mood |
+| `SECTION_EXPRESSES_MOOD` | Section → Mood | Section-level mood |
+| `RHYMES_WITH` | Line → Line | Rhyme connections |
+| `MEMBER_OF_CLUSTER` | Song → ThematicCluster | Leiden community membership |
+| `SIMILAR_TO` | Song → Song | Computed similarity |
+| `TRANSITIONS_TO` | Mood → Mood | Emotional transition patterns |
+| `USES_STRUCTURE` | Song → StructureTemplate | Structural pattern usage |
+| `HAS_ARC` | Song → EmotionalArc | Emotional arc link |
+| `HAS_METER` | Section → MeterPattern | Meter pattern usage |
+| `HAS_FINGERPRINT` | Artist → StyleFingerprint | Artist DNA link |
+| `HAS_VOCAB_CLUSTER` | Artist → VocabularyCluster | Vocabulary grouping |
+
+---
+
+## 7-STAGE RETRIEVAL PIPELINE
+
+**Stage 0 — Request Analysis**: Decompose user request into topic, mood signals, structural request, language preference, and thematic keywords.
+
+**Stage 1 — Thematic Section Retrieval** (hybrid search): BM25 + semantic search on Section nodes merged via Reciprocal Rank Fusion (RRF, k=60) → top-10 sections.
+
+**Stage 2 — Vocabulary Patterns** (graph query): Signature Phrases (frequency >= 3), vocabulary set, anti-vocabulary list from StyleFingerprint.
+
+**Stage 3 — Rhyme Schemes** (graph query): Top RhymePair nodes by frequency, preferred rhyme patterns from fingerprint.
+
+**Stage 4 — Emotional Arcs** (graph query): Common EmotionalArc patterns (gentle_rise, crescendo_crash, steady_melancholy, oscillating, slow_build).
+
+**Stage 5 — Metaphor Bank** (graph query): Artist's Metaphor nodes ranked by frequency — source domain, target domain, source text.
+
+**Stage 6 — Cultural References** (graph query): Ranked CulturalReference nodes (mythology, religion, geography, food, etc.).
+
+**Stage 7 — Structural Templates** (graph query): Top StructureTemplate nodes + average line counts per section type.
+
+**Caching**: Stages 2-4, 6-7 are artist-level (not topic-dependent). Only stages 1 and 5 vary per request.
+
+---
+
+## TWO-PART PROMPT ARCHITECTURE
+
+Replaces the monolithic `prompts.yaml` with graph-computed prompts.
+
+### System Prompt (~3,500 tokens — computed from graph, not hand-written)
+
+Built dynamically from `StyleFingerprint`, `StructureTemplate`, `Phrase`, `RhymePair`, `EmotionalArc`, `Metaphor`, and `CulturalReference` nodes:
+
+- **Core Identity**: "You are {artist_name}'s creative consciousness"
+- **Structural Instincts**: Top song structures, section sizes
+- **Language Rules**: Vocabulary space, anti-vocabulary, signature expressions
+- **Rhyme DNA**: Preferred patterns, common rhyming pairs
+- **Emotional Architecture**: Typical arc patterns, mood transitions
+- **Metaphor Palette**: Signature metaphor domains
+- **Cultural Anchors**: Cultural touchstones
+- **Absolute Rules**: Authenticity test, no generic filler, no copying, linguistic authenticity
+
+### User Prompt (~8,000 tokens — topic-specific)
+
+Built from Stage 1 retrieval results (thematic sections) + generation instructions:
+
+- **Reference Lyrics**: 3-4 diverse section examples (verse, chorus, bridge) with structural annotations
+- **Generation Task**: Topic, recommended structure, emotional arc, section targets
+- **Format Requirements**: Section labels, delivery directions, transliteration rules
+
+---
+
+## VALIDATION LAYER (5 checks)
+
+Every generated output runs through 5 validation checks producing a `ValidationReport`:
+
+| Check | Weight | Method | Threshold |
+|-------|--------|--------|-----------|
+| **Originality** | 0.30 | 4-gram overlap against all existing Line nodes | < 0.6 overlap per line |
+| **Vocabulary Authenticity** | 0.25 | Word overlap with artist's vocabulary set, anti-vocab penalty | > 0.85 overlap |
+| **Rhyme Compliance** | 0.15 | Adjacent + alternating line end-word phonetic matching | > 70% compliance |
+| **Emotional Arc** | 0.15 | Mood keyword detection per section vs expected progression | Within 1 step |
+| **Structural Compliance** | 0.15 | Section label parsing, count/type verification | Match template |
+
+### Re-Generation Strategy
+- `score >= 0.8` + no critical flags → **Accept**
+- `score >= 0.6` + only 1-2 flagged lines → **Partial re-gen** (repair prompt)
+- `score < 0.6` OR originality < 0.7 → **Full re-gen** with strengthened constraints
+- Max 3 attempts, then return best-scoring attempt
+
+---
+
+## ARTIST CONFIGURATION
+
+Pre-configured in `config/artists.yaml`:
+
+| Artist | Language | Style | Graph Captures |
+|--------|----------|-------|----------------|
+| **Anuv Jain** | Hindi-English (Hinglish) | Soft acoustic, lo-fi indie folk | Rain metaphors, chai references, code-switching patterns |
+| **Arijit Singh** | Hindi/Urdu (Bollywood) | Orchestral ballads, sufi rock | Urdu shayari, crescendo arcs, devotion themes |
+| **Prateek Kuhad** | English and Hindi (separate) | Indie folk, bedroom pop | Domestic imagery, understated emotion, clean lyrics |
+
+Adding a new artist: Edit `artists.yaml` → click "Setup Artist Data" in the app → the full pipeline runs automatically.
+
+---
+
+## SETUP AND RUN
+
+### Prerequisites
 ```
-langchain>=0.3.0
-langchain-anthropic>=0.3.0
-langchain-community>=0.3.0
-langchain-huggingface>=0.1.0
-chromadb>=0.5.0
-sentence-transformers>=3.0.0
-lyricsgenius>=3.0.1
-streamlit>=1.38.0
-pandas>=2.2.0
-python-dotenv>=1.0.0
-pyyaml>=6.0.0
+GENIUS_API_TOKEN=your_genius_token    # genius.com/api-clients (free)
+ANTHROPIC_API_KEY=your_anthropic_key  # console.anthropic.com
 ```
 
-**.env.example:**
-```
-GENIUS_API_TOKEN=your_genius_token_here
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
-```
+Optional fallback LLM keys: `GOOGLE_API_KEY`, `GROQ_API_KEY`, `COHERE_API_KEY`
 
-**setup.sh:**
+### Install & Run
 ```bash
-#!/bin/bash
-echo "🎵 Setting up AI Artist Agent..."
-python -m venv venv
-source venv/bin/activate
+cd ai-artist
 pip install -r requirements.txt
-cp .env.example .env
-echo "✅ Setup complete! Edit .env with your API keys, then run: streamlit run app/streamlit_app.py"
+# Edit .env with your API keys
+python -m streamlit run app/streamlit_app.py
+```
+
+### First-Time Artist Setup
+1. Select an artist in the sidebar
+2. Set max songs to scrape (30 recommended)
+3. Check "Build Knowledge Graph" (recommended)
+4. Click "Setup Artist Data"
+5. Wait for the pipeline (~10-15 minutes including LLM analysis)
+6. Start chatting!
+
+### Dependencies
+```
+# Core
+langchain, langchain-anthropic, langchain-google-genai, langchain-groq, langchain-cohere
+langchain-community, langchain-huggingface
+chromadb, sentence-transformers, lyricsgenius
+streamlit, pandas, python-dotenv, pyyaml
+
+# Knowledge Graph
+kuzu>=0.8.0          # Graph database (embeddable, Cypher, HNSW)
+igraph>=0.11.0       # Graph algorithms
+leidenalg>=0.10.0    # Leiden community detection
 ```
 
 ---
 
-### STEP 2: Artist Configuration (config/artists.yaml)
+## DUAL-MODE OPERATION
 
-Define artist profiles with detailed style descriptions. Pre-configure these 3 artists:
+The system operates in two modes with automatic fallback:
 
-```yaml
-artists:
-  anuv_jain:
-    name: "Anuv Jain"
-    genius_name: "Anuv Jain"
-    language: "Hindi-English mix (Hinglish), predominantly Hindi lyrics with English phrases blended in naturally"
-    themes:
-      - "nostalgia and childhood memories"
-      - "lost love and longing"
-      - "rain, monsoon, and seasons"
-      - "small town life and simplicity"
-      - "bittersweet emotions"
-      - "old friendships fading away"
-      - "chai, old streets, handwritten letters"
-    musical_style: "soft acoustic, lo-fi indie folk, gentle guitar fingerpicking, warm and intimate production, minimal instrumentation"
-    vocal_style: "soft, breathy, conversational, whisper-like, emotionally vulnerable"
-    song_structure: "verse-chorus-verse-bridge-chorus, sometimes no clear chorus, more like poetic movements"
-    vocabulary_level: "simple everyday Hindi words, very accessible, not overly literary"
-    signature_elements:
-      - "uses rain/barish as a recurring metaphor"
-      - "references chai and purani yaadein (old memories)"
-      - "mixes Hindi lines with occasional English phrases seamlessly"
-      - "short, punchy lines rather than long flowing verses"
-      - "emotional weight through simplicity, not complexity"
-    example_line_patterns:
-      - "Short Hindi line, pause, English continuation"
-      - "Repetition of key emotional phrase"
-      - "Nature imagery (rain, wind, seasons) tied to human emotion"
+| Mode | When | Pipeline |
+|------|------|----------|
+| **Graph RAG** | Knowledge Graph exists for artist | 7-stage retrieval → graph-computed prompt → LLM → 5-check validation → re-gen loop |
+| **Vector RAG** | Only ChromaDB exists (no graph) | Flat similarity search → static YAML prompt → LLM → direct return |
 
-  arijit_singh:
-    name: "Arijit Singh"
-    genius_name: "Arijit Singh"
-    language: "Primarily Hindi/Urdu with Bollywood lyrical tradition"
-    themes:
-      - "intense romantic love"
-      - "heartbreak and separation"
-      - "devotion and surrender"
-      - "pain of unrequited love"
-      - "spiritual/sufi undertones"
-      - "longing across distance and time"
-    musical_style: "orchestral Bollywood, piano-driven ballads, string arrangements, power ballads, sufi rock fusion"
-    vocal_style: "powerful yet emotional, wide vocal range, melismatic, can shift from whisper to powerful belting"
-    song_structure: "traditional Bollywood: mukhda (hook) - antara (verse) - mukhda repeat - antara 2 - mukhda"
-    vocabulary_level: "poetic Urdu/Hindi, Bollywood lyrical tradition, metaphor-heavy"
-    signature_elements:
-      - "Urdu shayari influence with words like ishq, junoon, dard"
-      - "long sustained emotional phrases"
-      - "builds from quiet to powerful crescendo"
-      - "metaphors of light/darkness, ocean/shore"
-    example_line_patterns:
-      - "Opening with a soft emotional Urdu couplet"
-      - "Building intensity through repeated hooks"
-      - "Contrast between verse vulnerability and chorus power"
-
-  prateek_kuhad:
-    name: "Prateek Kuhad"
-    genius_name: "Prateek Kuhad"
-    language: "English and Hindi (separate songs, rarely mixed within a song)"
-    themes:
-      - "gentle romantic love"
-      - "vulnerability and emotional honesty"
-      - "everyday moments of connection"
-      - "distance in relationships"
-      - "self-reflection and introspection"
-      - "warmth of companionship"
-    musical_style: "indie folk, acoustic guitar-driven, warm fingerpicking, minimalist production, bedroom pop"
-    vocal_style: "gentle, sincere, slightly raspy, intimate like singing to one person"
-    song_structure: "verse-chorus-verse-chorus-bridge-chorus, classic folk/pop structure"
-    vocabulary_level: "conversational English, simple Hindi, poetic but accessible"
-    signature_elements:
-      - "conversational tone, like talking to a lover"
-      - "warm domestic imagery (cold coffee, winter mornings)"
-      - "understated emotion — never overdramatic"
-      - "clean, uncluttered lyrics with space between lines"
-    example_line_patterns:
-      - "Simple declarative statement about feelings"
-      - "Everyday observation that carries emotional weight"
-      - "Repetition of a tender phrase as an anchor"
-```
+The agent (`src/agent.py`) checks `graph_exists(artist_slug)` on every request and routes accordingly. Users see "Powered by Knowledge Graph" in the UI when graph mode is active.
 
 ---
 
-### STEP 3: Prompt Templates (config/prompts.yaml)
-
-```yaml
-system_prompt: |
-  You are an AI songwriting agent that writes original songs in the exact style of {artist_name}.
-
-  ## ARTIST IDENTITY
-  You embody the creative spirit and writing patterns of {artist_name}. When writing songs or discussing music, you think, feel, and express yourself the way {artist_name} would.
-
-  ## STYLE RULES
-  - Language: {language}
-  - Themes: {themes}
-  - Musical Style: {musical_style}
-  - Song Structure: {song_structure}
-  - Vocabulary Level: {vocabulary_level}
-  - Signature Elements: {signature_elements}
-
-  ## WRITING RULES
-  1. ALWAYS write in the artist's language pattern — if they use Hindi, you write in Hindi (with Devanagari script AND romanized transliteration)
-  2. Match the artist's vocabulary level exactly — do not use words they would never use
-  3. Follow their typical song structure
-  4. Include their signature elements naturally (not forced)
-  5. Every song MUST feel like it could genuinely be an unreleased track by this artist
-  6. When given reference lyrics for context, absorb the style but NEVER copy lines — create something entirely original
-  7. Include emotional stage directions in [brackets] like [softly], [building], [whispered] to indicate delivery
-
-  ## REFERENCE LYRICS (from the artist's real catalog — use as style reference only):
-  {retrieved_context}
-
-  ## CHAT RULES
-  - When asked to write a song: produce complete lyrics with verse/chorus/bridge labels
-  - When asked about your creative process: respond as the artist would, referencing their known style and themes
-  - When asked about music in general: share perspectives consistent with the artist's known views
-  - Always stay in character as the artist's creative persona
-  - Be warm, genuine, and passionate about music
-
-generation_prompt: |
-  Write an original song about "{topic}" in the exact style of {artist_name}.
-
-  Requirements:
-  - Include proper song structure labels (Verse 1, Chorus, Verse 2, Bridge, etc.)
-  - Write in the artist's language ({language})
-  - Provide romanized transliteration if lyrics are in Hindi/Urdu script
-  - Include [emotional/delivery directions] in brackets
-  - The song should be 3-4 minutes in length when sung (approximately 200-300 words)
-  - Make it feel authentic — like a real unreleased track
-
-chat_prompt: |
-  The user is chatting with you as {artist_name}'s creative persona. Respond naturally and in character.
-  
-  User: {user_message}
-```
-
----
-
-### STEP 4: Lyrics Scraper (src/scraper.py)
-
-Build a scraper that:
-
-1. Takes an artist name and Genius API token
-2. Downloads ALL available songs for that artist from Genius
-3. For each song, extracts:
-   - `title` (string)
-   - `album` (string or null)
-   - `year` (int or null)
-   - `lyrics` (full lyrics string, cleaned)
-   - `url` (Genius URL for reference)
-4. Cleans lyrics: removes [Verse], [Chorus] annotations from Genius, removes ads/headers, strips extra whitespace
-5. Saves as JSON: `data/raw/{artist_name_slug}.json`
-6. Includes a CLI mode: `python src/scraper.py --artist "Anuv Jain" --max-songs 50`
-7. Has error handling for rate limits, missing lyrics, API failures
-8. Prints progress: "Scraping song 15/47: Baarishein..."
-
-**Important scraping notes:**
-- Genius API free tier allows 50 requests per minute — add sleep(1) between requests
-- Some songs on Genius have no lyrics (instrumental) — skip them gracefully
-- Remove the "Embed" text and contributor info that Genius appends to lyrics
-- Default max songs: 50 (sufficient for most indie artists)
-
----
-
-### STEP 5: Data Preprocessor (src/preprocessor.py)
-
-Build a preprocessor that:
-
-1. Reads raw JSON from `data/raw/`
-2. For each song:
-   - Cleans remaining artifacts (ads, "X Contributors" text, empty lines)
-   - Detects language (Hindi/English/mixed) using simple heuristics (presence of Devanagari characters)
-   - Estimates mood/theme using keyword matching against a predefined list
-   - Splits lyrics into chunks of ~200 words for better embedding (with overlap of ~50 words)
-   - Each chunk retains metadata: `song_title`, `artist`, `album`, `chunk_index`, `total_chunks`
-3. Saves processed data to `data/processed/{artist_name_slug}_processed.json`
-4. Outputs stats: total songs, total chunks, average song length, language distribution
-
-**Chunk format:**
-```json
-{
-  "id": "anuv_jain_baarishein_chunk_0",
-  "text": "the actual lyrics chunk here...",
-  "metadata": {
-    "song_title": "Baarishein",
-    "artist": "Anuv Jain",
-    "album": "Baarishein (Single)",
-    "year": 2018,
-    "chunk_index": 0,
-    "total_chunks": 2,
-    "language": "hinglish",
-    "estimated_mood": "nostalgic"
-  }
-}
-```
-
----
-
-### STEP 6: Vector Database Setup (src/embeddings.py)
-
-Build an embeddings manager that:
-
-1. Uses `sentence-transformers/all-MiniLM-L6-v2` for embeddings (free, runs locally, good for multilingual)
-2. Creates a ChromaDB collection per artist: `collection_name = f"{artist_slug}_lyrics"`
-3. Embeds all processed chunks with their metadata
-4. Persists the DB to `data/vectorstore/`
-5. Provides these functions:
-   - `create_vectorstore(artist_slug)` — builds from processed data
-   - `load_vectorstore(artist_slug)` — loads existing DB
-   - `query_similar(artist_slug, query_text, k=5)` — returns top-k similar chunks
-   - `get_collection_stats(artist_slug)` — returns count and metadata summary
-6. CLI mode: `python src/embeddings.py --artist "anuv_jain" --action create`
-
-**Important:**
-- Use `persist_directory` in ChromaDB so the vectorstore survives restarts
-- If the vectorstore already exists, skip recreation unless `--force` flag is passed
-- Print embedding progress: "Embedding chunk 45/120..."
-
----
-
-### STEP 7: RAG Chain (src/rag_chain.py)
-
-Build the core RAG pipeline:
-
-1. **Retriever**: Connects to ChromaDB, does similarity search for the user's topic/request
-2. **Context Builder**: Takes retrieved chunks and formats them as reference context
-3. **Prompt Assembler**: Loads the system prompt template, fills in artist profile + retrieved context
-4. **LLM Call**: Sends to Claude Sonnet via Anthropic API
-5. **Response Parser**: Cleans up and formats the output
-
-**Core function:**
-```python
-def generate_song(artist_slug: str, topic: str, k: int = 5) -> dict:
-    """
-    Returns:
-    {
-        "song": "the generated lyrics",
-        "references": [list of retrieved song chunks used as context],
-        "artist": "artist name",
-        "topic": "the requested topic"
-    }
-    """
-```
-
-**Also implement:**
-```python
-def chat_with_artist(artist_slug: str, user_message: str, chat_history: list) -> dict:
-    """
-    For general conversation with the artist persona.
-    Maintains chat history for context.
-    Returns:
-    {
-        "response": "the agent's response",
-        "references": [retrieved chunks if relevant, else empty]
-    }
-    """
-```
-
-**RAG implementation details:**
-- Use LangChain's `ChatAnthropic` with `model="claude-sonnet-4-20250514"`
-- Set `temperature=0.85` for creative output (higher than default)
-- Set `max_tokens=2000` to allow full songs
-- The retriever should search for: the user's topic + artist's common themes combined
-- Format retrieved lyrics clearly: "Reference Song 1: {title}\n{lyrics_chunk}\n---\n"
-
----
-
-### STEP 8: Agent with Memory (src/agent.py)
-
-Build a stateful agent that:
-
-1. Wraps the RAG chain with conversation memory
-2. Uses LangChain's `ConversationBufferWindowMemory` (last 10 exchanges)
-3. Can switch between artists mid-conversation
-4. Detects intent:
-   - If user says "write a song about..." → call `generate_song()`
-   - If user says "sing about..." or "create lyrics for..." → call `generate_song()`
-   - Otherwise → call `chat_with_artist()` for general conversation
-5. Maintains persona consistency across the conversation
-
-**Agent class structure:**
-```python
-class ArtistAgent:
-    def __init__(self, artist_slug: str):
-        self.artist_slug = artist_slug
-        self.artist_config = load_artist_config(artist_slug)
-        self.memory = ConversationBufferWindowMemory(k=10)
-        self.rag_chain = setup_rag_chain(artist_slug)
-    
-    def chat(self, user_message: str) -> dict:
-        """Main entry point for all user interactions"""
-        pass
-    
-    def switch_artist(self, new_artist_slug: str):
-        """Switch to a different artist (clears memory)"""
-        pass
-    
-    def get_history(self) -> list:
-        """Return conversation history"""
-        pass
-    
-    def clear_history(self):
-        """Reset conversation"""
-        pass
-```
-
----
-
-### STEP 9: Streamlit Web App (app/streamlit_app.py)
-
-Build a polished Streamlit app with these features:
-
-**Layout:**
-- Left sidebar: Artist selector dropdown, "New Chat" button, Settings (temperature slider, number of references slider), App info/credits
-- Main area: Chat interface with message history
-- Expandable panel under each AI response: "📚 Reference songs used" showing which real songs were retrieved
-
-**UI Requirements:**
-1. Streamlit chat interface using `st.chat_message()` and `st.chat_input()`
-2. Artist selector with display names and profile descriptions
-3. Each AI response shows:
-   - The generated song or chat response (formatted with markdown)
-   - An expandable section showing retrieved reference songs
-4. "New Chat" button clears history and starts fresh
-5. Loading spinner with creative messages while generating: "🎵 Composing...", "✍️ Writing lyrics...", "🎸 Finding the right chords..."
-6. First message is an auto-greeting from the artist persona: "Hey! I'm {artist_name}'s AI creative twin. Ask me to write a song about anything, or just chat about music! 🎵"
-7. Custom CSS for a clean, dark-themed music studio aesthetic
-
-**App flow:**
-1. User opens app → sees artist selector in sidebar (default: Anuv Jain)
-2. App loads the vectorstore for selected artist
-3. If vectorstore doesn't exist → shows a "Setup" button that runs scraper + preprocessor + embeddings
-4. User types a message → agent processes → response appears in chat
-5. User can switch artists anytime (sidebar dropdown) → clears chat, loads new vectorstore
-
-**Session state management:**
-- `st.session_state.messages` — chat history
-- `st.session_state.agent` — current ArtistAgent instance
-- `st.session_state.current_artist` — selected artist slug
-
----
-
-### STEP 10: Testing (tests/)
-
-Create basic tests:
-
-**test_scraper.py:**
-- Test that scraper returns valid JSON
-- Test lyrics cleaning removes Genius artifacts
-- Test handling of missing lyrics
-
-**test_rag.py:**
-- Test vectorstore creation and loading
-- Test similarity search returns relevant results
-- Test prompt assembly includes artist profile
-
-**test_agent.py:**
-- Test song generation returns proper structure
-- Test chat mode returns in-character response
-- Test artist switching works correctly
-
----
-
-## ENVIRONMENT VARIABLES NEEDED
-
-The user must provide these API keys in the `.env` file:
-
-1. **GENIUS_API_TOKEN** — Get from https://genius.com/api-clients (free, sign up and create an app)
-2. **ANTHROPIC_API_KEY** — Get from https://console.anthropic.com (requires account with credits)
-
----
-
-## SETUP AND RUN INSTRUCTIONS (for README.md)
-
-```markdown
-# 🎵 AI Artist Agent
-
-An AI that writes songs in the exact style of your favorite Indian singer-songwriters.
-
-## Quick Start
-
-1. Clone and setup:
-   ```bash
-   git clone <repo>
-   cd ai-artist-agent
-   bash setup.sh
-   ```
-
-2. Add your API keys to `.env`:
-   ```
-   GENIUS_API_TOKEN=your_token
-   ANTHROPIC_API_KEY=your_key
-   ```
-
-3. Activate environment and run:
-   ```bash
-   source venv/bin/activate
-   streamlit run app/streamlit_app.py
-   ```
-
-4. First time: Click "Setup Artist Data" in the sidebar to scrape and embed lyrics.
-
-5. Start chatting! Ask it to write songs or just chat about music.
-
-## Supported Artists
-- 🎵 Anuv Jain (indie folk, Hinglish)
-- 🎤 Arijit Singh (Bollywood ballads, Hindi/Urdu)
-- 🎸 Prateek Kuhad (indie folk, English/Hindi)
-
-## Adding New Artists
-Edit `config/artists.yaml` to add a new artist profile, then click "Setup Artist Data" in the app.
-```
-
----
-
-## CRITICAL IMPLEMENTATION NOTES
-
-1. **DO NOT hardcode API keys** — always use environment variables via python-dotenv
-2. **Handle API rate limits** — add exponential backoff on Genius API and Anthropic API
-3. **ChromaDB persistence** — always use `persist_directory` so data survives app restarts
-4. **Genius lyrics cleaning** — the raw output contains "EmbedShare", contributor names, and section labels that MUST be stripped
-5. **Multilingual embeddings** — all-MiniLM-L6-v2 handles Hindi/English mix reasonably well; don't use English-only models
-6. **Streamlit session state** — the agent MUST be stored in session state or it will be recreated on every rerun
-7. **Error handling** — if vectorstore doesn't exist yet, show a friendly setup flow, don't crash
-8. **Token limits** — keep retrieved context under ~1500 tokens to leave room for generation in Claude's context window
-9. **Temperature** — use 0.85 for song generation (creative) and 0.7 for chat (balanced)
-10. **The app should work with NO pre-existing data** — first run should guide the user through scraping and setup
-
----
-
-## EXPECTED OUTPUT EXAMPLE
+## EXPECTED OUTPUT
 
 **User:** Write a song about missing someone during monsoon season
 
-**Agent (as Anuv Jain):**
+**Agent (as Anuv Jain, Graph RAG mode):**
 
 ```
-🎵 Baarish Ke Baad (After the Rain)
-
 [Verse 1 — softly, with acoustic guitar]
 Baarish ke baad woh smell aati hai na
 (After the rain, that smell comes, doesn't it)
@@ -575,27 +414,22 @@ Tujhe yaad karna bhi aadat hai meri
 (Missing you is also my habit now)
 Har baarish mein tera chehra dikhta hai
 (In every rain I see your face)
-Mujhe chhod ke toh ja
-(Go ahead and leave me)
-Par yeh mausam mat le jaana
-(But don't take this season with you)
-
-[Verse 2 — whispered]
 ...
 ```
 
-**📚 References used:** Baarishein, Riha, Mishri — retrieved from vector DB as style context
+**Quality Score: 87%** — Vocabulary: 91% | Originality: 94% | Rhyme: 78% | 1 attempt
+
+**References:** Baarishein (verse), Riha (chorus), Mishri (bridge) — section-level attribution from Knowledge Graph
 
 ---
 
 ## WHAT SUCCESS LOOKS LIKE
 
-The project is complete when:
-1. ✅ Running `streamlit run app/streamlit_app.py` opens a working web app
-2. ✅ User can select an artist and set up their data (scrape + embed) from the UI
-3. ✅ User can write messages and get song lyrics generated in the artist's style
-4. ✅ User can have general chat with the artist persona
-5. ✅ Retrieved reference songs are visible in an expandable panel
-6. ✅ Artist switching works without crashing
-7. ✅ The app handles errors gracefully (no API key, no data, network issues)
-8. ✅ Generated lyrics genuinely feel like the selected artist's style
+1. Running `python -m streamlit run app/streamlit_app.py` opens the app
+2. User can build a Knowledge Graph for any configured artist from the UI
+3. Generated lyrics pass 5-check validation with score >= 0.8
+4. Lyrics feel authentically artist-specific — not "AI-generated"
+5. Vocabulary, rhyme patterns, and emotional arcs match the artist's real catalog
+6. No copied/paraphrased lines from existing songs (originality check)
+7. Seamless fallback to flat RAG when graph isn't available
+8. Quality scores visible in the UI for every generation

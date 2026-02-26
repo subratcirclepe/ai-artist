@@ -3,7 +3,7 @@
 import re
 
 from src.utils import load_artist_config, vectorstore_exists
-from src.rag_chain import generate_song, chat_with_artist
+from src.graph.connection import graph_exists
 
 
 # Patterns that indicate a song generation request
@@ -82,47 +82,70 @@ class ArtistAgent:
         Returns:
             Dict with response content and metadata.
         """
+        # Use graph-powered pipeline if available, fallback to flat RAG
+        use_graph = graph_exists(self.artist_slug)
+
         if is_song_request(user_message):
             topic = extract_topic(user_message)
             temp = temperature if temperature is not None else 0.85
-            result = generate_song(
-                self.artist_slug,
-                topic,
-                k=k,
-                temperature=temp,
-            )
+
+            if use_graph:
+                from src.graph_rag_chain import generate_song_with_graph
+                result = generate_song_with_graph(
+                    self.artist_slug, topic, k=k, temperature=temp,
+                )
+            else:
+                from src.rag_chain import generate_song
+                result = generate_song(
+                    self.artist_slug, topic, k=k, temperature=temp,
+                )
 
             # Store in history
             self._add_to_history("user", user_message)
             self._add_to_history("assistant", result["song"])
 
-            return {
+            response_dict = {
                 "type": "song",
                 "response": result["song"],
                 "references": result["references"],
                 "topic": result["topic"],
                 "artist": result["artist"],
             }
+            # Include validation info if graph-powered
+            if result.get("validation"):
+                response_dict["validation"] = result["validation"]
+            if result.get("graph_powered"):
+                response_dict["graph_powered"] = True
+            return response_dict
         else:
             temp = temperature if temperature is not None else 0.7
-            result = chat_with_artist(
-                self.artist_slug,
-                user_message,
-                chat_history=self.chat_history,
-                k=3,
-                temperature=temp,
-            )
+
+            if use_graph:
+                from src.graph_rag_chain import chat_with_artist_graph
+                result = chat_with_artist_graph(
+                    self.artist_slug, user_message,
+                    chat_history=self.chat_history, k=3, temperature=temp,
+                )
+            else:
+                from src.rag_chain import chat_with_artist
+                result = chat_with_artist(
+                    self.artist_slug, user_message,
+                    chat_history=self.chat_history, k=3, temperature=temp,
+                )
 
             # Store in history
             self._add_to_history("user", user_message)
             self._add_to_history("assistant", result["response"])
 
-            return {
+            response_dict = {
                 "type": "chat",
                 "response": result["response"],
                 "references": result["references"],
                 "artist": self.artist_name,
             }
+            if result.get("graph_powered"):
+                response_dict["graph_powered"] = True
+            return response_dict
 
     def _add_to_history(self, role: str, content: str):
         """Add a message to chat history, maintaining window size."""

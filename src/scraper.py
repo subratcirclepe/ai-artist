@@ -17,8 +17,14 @@ from src.utils import (
 )
 
 
-def clean_lyrics(lyrics: str) -> str:
-    """Clean raw Genius lyrics text."""
+def clean_lyrics(lyrics: str, preserve_sections: bool = True) -> str:
+    """Clean raw Genius lyrics text.
+
+    Args:
+        lyrics: Raw lyrics text from Genius.
+        preserve_sections: If True, keep section headers like [Verse 1], [Chorus].
+            Required for knowledge graph structural decomposition.
+    """
     if not lyrics:
         return ""
 
@@ -30,8 +36,11 @@ def clean_lyrics(lyrics: str) -> str:
     lyrics = re.sub(r"\d+ Contributors?.*?\n", "", lyrics)
     # Remove "See .* Live" promotions
     lyrics = re.sub(r"See .* LiveGet tickets.*?\n", "", lyrics, flags=re.IGNORECASE)
-    # Remove section headers like [Verse 1], [Chorus], etc.
-    lyrics = re.sub(r"\[.*?\]", "", lyrics)
+
+    if not preserve_sections:
+        # Legacy behavior: strip section headers
+        lyrics = re.sub(r"\[.*?\]", "", lyrics)
+
     # Remove extra blank lines
     lyrics = re.sub(r"\n{3,}", "\n\n", lyrics)
     # Strip leading/trailing whitespace
